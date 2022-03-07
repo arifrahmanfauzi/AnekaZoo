@@ -1,11 +1,12 @@
 package controllers
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"net/http"
 	"AnekaZoo/database"
 	"AnekaZoo/entity"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -31,7 +32,9 @@ func GetAnimalByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(animal)
 }
 
-//CreateAnimal creates animal
+/*
+Create Animal Func
+*/
 func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 	requestBody, _ := ioutil.ReadAll(r.Body)
 	var animal entity.Animal
@@ -46,6 +49,7 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 //UpdateAnimalByID updates animal with respective ID
 func UpdateAnimalByID(w http.ResponseWriter, r *http.Request) {
 	requestBody, _ := ioutil.ReadAll(r.Body)
+	fmt.Print(r.Body)
 	var animal entity.Animal
 	json.Unmarshal(requestBody, &animal)
 	database.Connector.Save(&animal)
