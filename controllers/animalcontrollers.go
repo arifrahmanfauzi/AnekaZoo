@@ -48,17 +48,15 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(requestBody, &animal)
 
 	if duplicateError := database.Connector.Select("Name", "Class", "Legs").Create(&animal).Error; duplicateError != nil {
-		// response := Result{Code: 200, Data: animal, Message: "Animal has been created"}
-		// resultvalue, errors := json.Marshal(response)
-		// fmt.Print(errors)
-		// w.Header().Set("Content-Type", "application/json")
-		// w.WriteHeader(http.StatusInternalServerError)
-		// w.Write(resultvalue)
-		http.Error(w, duplicateError.Error(), http.StatusInternalServerError)
+
+		errorResponse := Result{Code: 500, Data: animal, Message: "Duplicate name animal"}
+		result, err := json.Marshal(errorResponse)
+		if err != nil {
+			http.Error(w, duplicateError.Error(), http.StatusInternalServerError)
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		// json.NewEncoder(w).Encode(result)
-		w.Write([]byte(duplicateError.Error()))
+		w.Write(result)
 		return
 	}
 
