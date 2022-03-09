@@ -12,6 +12,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Result is an array of animal
+type Result struct {
+	Code    int         `json:"code"`
+	Data    interface{} `json:"data"`
+	Message string      `json:"message"`
+}
+
 //GetAllAnimal get all animal data
 func GetAllAnimal(w http.ResponseWriter, r *http.Request) {
 	var animals []entity.Animal
@@ -40,16 +47,37 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 	var animal entity.Animal
 	json.Unmarshal(requestBody, &animal)
 
-	database.Connector.Create(animal)
+	if duplicateError := database.Connector.Select("Name", "Class", "Legs").Create(&animal).Error; duplicateError != nil {
+		// response := Result{Code: 200, Data: animal, Message: "Animal has been created"}
+		// resultvalue, errors := json.Marshal(response)
+		// fmt.Print(errors)
+		// w.Header().Set("Content-Type", "application/json")
+		// w.WriteHeader(http.StatusInternalServerError)
+		// w.Write(resultvalue)
+		http.Error(w, duplicateError.Error(), http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		// json.NewEncoder(w).Encode(result)
+		w.Write([]byte(duplicateError.Error()))
+		return
+	}
+
+	res := Result{Code: 200, Data: animal, Message: "Animal has been created"}
+	result, err := json.Marshal(res)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(animal)
+	// json.NewEncoder(w).Encode(result)
+	w.Write(result)
 }
 
 //UpdateAnimalByID updates animal with respective ID
 func UpdateAnimalByID(w http.ResponseWriter, r *http.Request) {
 	requestBody, _ := ioutil.ReadAll(r.Body)
-	fmt.Print(r.Body)
+	fmt.Println(string(requestBody))
 	var animal entity.Animal
 	json.Unmarshal(requestBody, &animal)
 	database.Connector.Save(&animal)
