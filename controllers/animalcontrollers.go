@@ -4,7 +4,6 @@ import (
 	"AnekaZoo/database"
 	"AnekaZoo/entity"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -75,7 +74,7 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 //UpdateAnimalByID updates animal with respective ID
 func UpdateAnimalByID(w http.ResponseWriter, r *http.Request) {
 	requestBody, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(requestBody))
+	// fmt.Println(string(requestBody))
 	var animal entity.Animal
 	json.Unmarshal(requestBody, &animal)
 	database.Connector.Save(&animal)
