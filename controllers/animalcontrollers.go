@@ -8,8 +8,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 )
+
+var validate *validator.Validate
 
 // Result is an array of animal
 type Result struct {
@@ -73,8 +76,14 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 
 //UpdateAnimalByID updates animal with respective ID
 func UpdateAnimalByID(w http.ResponseWriter, r *http.Request) {
-	requestBody, _ := ioutil.ReadAll(r.Body)
-	// fmt.Println(string(requestBody))
+	requestBody, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+
+		err.Error()
+		return
+
+	}
 	var animal entity.Animal
 	json.Unmarshal(requestBody, &animal)
 	database.Connector.Save(&animal)
